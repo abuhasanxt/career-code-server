@@ -37,10 +37,25 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     });
+
+    // could be
+app.get('/jobsByEmailAddress',async(req,res)=>{
+
+  const email =req.query.email;
+  const query={hr_email:email}
+})
+
     app.get("/jobs/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await jobsCollection.findOne(query);
+      res.send(result);
+    });
+
+    app.post("/jobs", async (req, res) => {
+      const newJob = req.body;
+      console.log(newJob);
+      const result = await jobsCollection.insertOne(newJob);
       res.send(result);
     });
 
@@ -54,17 +69,16 @@ async function run() {
 
       const result = await applicationCollection.find(query).toArray();
 
-
       // bad way aggregate data
 
-      for(const application of result){
-        const jobId=application.jobId;
-        const jobQuery= {_id:new ObjectId(jobId)};
+      for (const application of result) {
+        const jobId = application.jobId;
+        const jobQuery = { _id: new ObjectId(jobId) };
         const job = await jobsCollection.findOne(jobQuery);
 
-        application.company=job.company;
-        application.title=job.title
-        application.company_logo=job.company_logo
+        application.company = job.company;
+        application.title = job.title;
+        application.company_logo = job.company_logo;
       }
       res.send(result);
     });
@@ -75,6 +89,7 @@ async function run() {
       const result = await applicationCollection.insertOne(application);
       res.send(result);
     });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
